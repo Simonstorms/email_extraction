@@ -16,7 +16,7 @@ def parse_email(file_path):
     body = msg.get_payload(decode=True)
 
     # Extract company ID
-    company_id = sender.split('@')[1]
+    company_id = recipient.split('+')[1].split('@')[0]
 
     return {
         'sender': sender,
@@ -24,7 +24,7 @@ def parse_email(file_path):
         'subject': subject,
         'date': date,
         'body': body,
-        'company': company_id
+        'company_id': company_id
     }
 
 
