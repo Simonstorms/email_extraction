@@ -1,0 +1,24 @@
+load_dotenv()
+
+def get_token():
+    url = "https://api.dev.getkini.com/token/"
+    payload = {
+        "username": os.getenv("USERNAME"),
+        "password": os.getenv("PASSWORD")
+    }
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    return response.text
+
+def send_application(access_token, payload):
+    url = "https://api.dev.getkini.com/applications/"
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": f"Bearer {access_token}"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()

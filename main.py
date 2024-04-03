@@ -2,10 +2,11 @@ import json
 import requests
 import os
 from dotenv import load_dotenv
-from bs4 import BeautifulSoup
+import base64
+import email
+from email import policy
 
 load_dotenv()
-
 
 def get_token():
     url = "https://api.dev.getkini.com/token/"
@@ -17,10 +18,8 @@ def get_token():
         "accept": "application/json",
         "content-type": "application/json"
     }
-
     response = requests.post(url, json=payload, headers=headers)
     return response.text
-
 
 def send_application(access_token, payload):
     url = "https://api.dev.getkini.com/applications/"
@@ -29,82 +28,80 @@ def send_application(access_token, payload):
         "content-type": "application/json",
         "authorization": f"Bearer {access_token}"
     }
-
     response = requests.post(url, json=payload, headers=headers)
     return response.json()
 
-
-import email
-from email import policy
+def determine_attachment_type(filename):
+    lower_filename = filename.lower()
+    if 'cv' in lower_filename or 'resume' in lower_filename:
+        return 'cv'
+    elif 'cover' in lower_filename or 'letter' in lower_filename:
+        return 'cover-letter'
+    elif 'photo' in lower_filename or 'picture' in lower_filename or 'image' in lower_filename:
+        return 'photo'
+    else:
+        return 'other'
 
 def parse_email(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         msg = email.message_from_file(file, policy=policy.default)
 
-    body = None
-    if msg.is_multipart():
-        for part in msg.walk():
-            content_type = part.get_content_type()
-            if content_type in ['text/plain', 'text/html'] and not part.get('Content-Disposition'):
+    attachments_data = []
+
+    for part in msg.walk():
+        content_type = part.get_content_type()
+        content_disposition = part.get('Content-Disposition')
+        if content_disposition:
+            filename = part.get_filename()
+            if filename:
                 payload = part.get_payload(decode=True)
-                try:
-                    body = payload.decode(part.get_content_charset() or 'utf-8')
-                except UnicodeDecodeError:
-                    try:
-                        body = payload.decode('latin-1')  # Trying with 'latin-1' as a fallback
-                    except UnicodeDecodeError:
-                        body = payload.decode('utf-8', errors='replace')  # Replace undecodable chars
-                break
-    else:
-        payload = msg.get_payload(decode=True)
-        try:
-            body = payload.decode(msg.get_content_charset() or 'utf-8')
-        except UnicodeDecodeError:
-            try:
-                body = payload.decode('latin-1')  # Trying with 'latin-1' as a fallback
-            except UnicodeDecodeError:
-                body = payload.decode('utf-8', errors='replace')  # Replace undecodable chars
+                data = base64.b64encode(payload).decode()
 
-    return body
+                attachment_type = determine_attachment_type(filename)
+                readable_content_type = {
+                    'application/pdf': 'Pdf',
+                    'image/jpeg': 'Jpeg',
+                    'image/png': 'Png',
+                    'text/plain': 'Plain Text',
+                    'application/msword': 'Ms Word',
+                }.get(content_type, content_type.split('/')[-1].capitalize())
 
+                attachments_data.append({
+                    'type': attachment_type,
+                    'name': filename.split('.')[0],
+                    'content_type': readable_content_type,
+                    'data': data
+                })
+
+    return attachments_data
 
 def convert_to_json(data):
     return json.dumps(data, indent=4)
 
-
-# Usage example
-email_body = parse_email('application-2.eml')
-
-soup = BeautifulSoup(email_body, 'lxml')
-
-# Extracting data based on the provided HTML structure
-for div in soup.find_all('div'):
-    if 'Mit freundlichen Grüßen' in div.text:
-        # Find the last <br> tag and get the next sibling
-        br_tags = div.find_all('br')
-        if br_tags:
-            name = br_tags[-1].next_sibling.strip()
-            break
+# Example usage of parse_email
+file_path = 'application-2.eml'
+attachments = parse_email(file_path)
 
 
-email = soup.find('a', href=lambda href: href and 'mailto:' in href).text.strip()
 
-ref_element = soup.find(string=lambda text: text and 'RefNr.' in text)
-ref_nr = ref_element.split('RefNr.')[1].split()[0] if ref_element else 'RefNr not found'
-
+# Extracting additional data from the email body as required...
+# (Process the soup object to extract other required information like name, email, etc.)
 
 # Print extracted information
-print(f"Name: {name}")
-print(f"Email: {email}")
-print(f"RefNr: {ref_nr}")
+
+# Continue to extract and print other information as needed
+
+# Example of how to use the extracted attachments data
+for attachment in attachments:
+    print(f"Type: {attachment['type']}")
+    print(f"Name: {attachment['name']}")
+    print(f"Content Type: {attachment['content_type']}")
+    print(f"Data: {attachment['data'][:30]}... (truncated for display)")
+
+# Example of token retrieval and sending an application
 # token_response = get_token()
 # token_data = json.loads(token_response)
 # access_token = token_data.get('access_token')
-
-# Example of sending application
-# application_payload = {}  # You need to define the payload based on your application's requirements
+# application_payload = {}  # Define the payload
 # send_application_response = send_application(access_token, application_payload)
 # print(send_application_response)
-
-# If you need to parse attachments, ensure that the parse_email function
-# includes logic to extract and return attachment details
