@@ -13,7 +13,6 @@ This Python script provides a comprehensive solution for automating application 
 
 ## Prerequisites
 
-- Python installed on pc
 - Requests: `pip install requests`
 - Beautiful Soup 4: `pip install beautifulsoup4`
 - Python-dotenv: `pip install python-dotenv`
@@ -26,6 +25,11 @@ This Python script provides a comprehensive solution for automating application 
    USERNAME=your_username
    PASSWORD=your_password
    ```
+3. Paste `.eml` files in your Project
+4. Select filename of the `.eml` you want to analyze:
+   ```python
+   main('application-1.eml')
+   ``` 
 
 ## Usage
 
