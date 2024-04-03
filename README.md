@@ -56,13 +56,5 @@ This Python script provides a comprehensive solution for automating application 
        main('path_to_email_file.eml')
    ```
 
-## Function Descriptions
-
-- `get_token()`: Fetches an access token from the API.
-- `send_application(access_token, payload)`: Submits the application data along with the access token.
-- `parse_email(file_path)`: Parses the email file to extract content and attachments.
-- `extract_details(email_body, subject)`: Extracts date, email address, name, role, and reference number from the email body.
-- `extract_company_id(receiver_email)`: Extracts the company ID from the receiver's email address.
-- `main(file_path)`: Orchestrates the flow of parsing the email, extracting details, and sending the application.
 
 Ensure that the file paths and credentials used in the script are valid and correct for your environment and use case.
