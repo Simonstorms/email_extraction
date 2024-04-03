@@ -6,6 +6,7 @@ import base64
 import email
 from email import policy
 from datetime import datetime
+import json
 
 from dotenv import load_dotenv
 
@@ -103,9 +104,13 @@ def extract_details(email_body, subject):
     # get date
     date_match = soup.find(string=re.compile(r'\b\d{2}\.\d{2}\.\d{4}\b'))
     date_old = date_match.strip() if date_match else None
-    # bring in required format
-    date_obj = datetime.strptime(date_old, "%d.%m.%Y")
-    date = date_obj.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+    # Only parse and reformat the date if it is not None
+    if date_old:
+        date_obj = datetime.strptime(date_old, "%d.%m.%Y")
+        date = date_obj.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+    else:
+        date = None
+
     # get email address
     email_address = soup.find('a', href=lambda href: href and 'mailto:' in href).text.strip()
     # get RefNr
@@ -176,19 +181,25 @@ def main(file_path):
         "applied_at": date
     }
 
-    # Print extracted information
-    print(f"Sender: {sender}")
-    print(f"Company_id: {company_id}")
-    # print(f"Subject: {subject}")
+    json_application = {
+        "candidate": candidate_info,
+        "attachments": attachments_list,
+        "additional_info": {
+            "sender": sender,
+            "company_id": company_id,
+            "subject": subject,  # Uncomment if subject is needed
+            "role": role,
+            "ref_nr": ref_nr,
+            "date": date
+        }
+    }
 
-    print(f"Role: {role}")
-    print(f"RefNr: {ref_nr}")
-    print(f"Date: {date}")
-
+    # Print the application data in JSON format
+    print(json.dumps(json_application, indent=4))
     # api call
     print(send_application(get_token(), application))
 
 
 # Usage example
 if __name__ == '__main__':
-    main('application-1.eml')
+    main('application-2.eml')
