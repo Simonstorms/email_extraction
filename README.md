@@ -32,7 +32,7 @@ This Python script automates the extraction of pertinent details from emails and
    ``` 
 
 
-   ```
+
 
 
 Ensure that the file paths and credentials used in the script are valid and correct for your environment and use case.
