@@ -1,35 +1,7 @@
-import json
-import requests
-import os
-from dotenv import load_dotenv
 import base64
 import email
 from email import policy
 
-load_dotenv()
-
-def get_token():
-    url = "https://api.dev.getkini.com/token/"
-    payload = {
-        "username": os.getenv("USERNAME"),
-        "password": os.getenv("PASSWORD")
-    }
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json"
-    }
-    response = requests.post(url, json=payload, headers=headers)
-    return response.text
-
-def send_application(access_token, payload):
-    url = "https://api.dev.getkini.com/applications/"
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Bearer {access_token}"
-    }
-    response = requests.post(url, json=payload, headers=headers)
-    return response.json()
 
 def determine_attachment_type(filename):
     lower_filename = filename.lower()
@@ -42,18 +14,21 @@ def determine_attachment_type(filename):
     else:
         return 'other'
 
+
 def parse_email(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         msg = email.message_from_file(file, policy=policy.default)
 
     attachments_data = []
+    processed_filenames = set()  # Set to track processed filenames
 
     for part in msg.walk():
         content_type = part.get_content_type()
         content_disposition = part.get('Content-Disposition')
         if content_disposition:
             filename = part.get_filename()
-            if filename:
+            if filename and filename not in processed_filenames:  # Check if filename has been processed
+                processed_filenames.add(filename)  # Mark filename as processed
                 payload = part.get_payload(decode=True)
                 data = base64.b64encode(payload).decode()
 
@@ -75,21 +50,10 @@ def parse_email(file_path):
 
     return attachments_data
 
-def convert_to_json(data):
-    return json.dumps(data, indent=4)
 
 # Example usage of parse_email
-file_path = 'application-2.eml'
-attachments = parse_email(file_path)
-
-
-
-# Extracting additional data from the email body as required...
-# (Process the soup object to extract other required information like name, email, etc.)
-
-# Print extracted information
-
-# Continue to extract and print other information as needed
+email_file = 'application-2.eml'
+attachments = parse_email(email_file)
 
 # Example of how to use the extracted attachments data
 for attachment in attachments:
@@ -97,11 +61,3 @@ for attachment in attachments:
     print(f"Name: {attachment['name']}")
     print(f"Content Type: {attachment['content_type']}")
     print(f"Data: {attachment['data'][:30]}... (truncated for display)")
-
-# Example of token retrieval and sending an application
-# token_response = get_token()
-# token_data = json.loads(token_response)
-# access_token = token_data.get('access_token')
-# application_payload = {}  # Define the payload
-# send_application_response = send_application(access_token, application_payload)
-# print(send_application_response)
