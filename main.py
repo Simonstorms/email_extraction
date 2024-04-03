@@ -57,7 +57,7 @@ def determine_attachment_type(filename):
 
 def parse_email(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
-        msg = email.message_from_file(file, policy=policy.default)
+        msg = email.message_from_file(file, policy=policy.default) #ex
 
     body = ''
     attachments_data = []
@@ -66,12 +66,12 @@ def parse_email(file_path):
 
     if msg.is_multipart():
         for part in msg.walk():
-            content_type = part.get_content_type()
+
 
             if part.get_content_type() in ['text/plain', 'text/html'] and not part.get('Content-Disposition'):
                 if not body_processed:
                     payload = part.get_payload(decode=True)
-                    body = payload.decode(part.get_content_charset() or 'utf-8', errors='replace')
+                    body = payload.decode(part.get_content_charset() or 'utf-8', errors='replace') #ex
                     body_processed = True
 
             elif part.get('Content-Disposition'):
@@ -83,6 +83,7 @@ def parse_email(file_path):
                     data = base64.b64encode(payload).decode()
 
                     attachment_type = determine_attachment_type(filename)
+                    content_type = part.get_content_type()
                     # Check if content_type is "jpg" and replace with "jpeg"
                     if content_type == "image/jpg":
                         content_type = "image/jpeg"
@@ -120,7 +121,7 @@ def extract_details(email_body, subject):
 
     # from subject
     # get name
-    name_match = re.search(r"von\s+(\w+\s+\w+)", subject)
+    name_match = re.search(r"von\s+(\w+\s+\w+)", subject) #ex
     name = name_match.group(1) if name_match else None
     # get role
     role_match = re.search(r"als\s+(.+?)\s+\(", subject)
@@ -131,7 +132,7 @@ def extract_details(email_body, subject):
 
 # get company id
 def extract_company_id(receiver_email):
-    id_match = re.search(r'applications\+(\d+)@getkini.com', receiver_email)
+    id_match = re.search(r'applications\+(\d+)@getkini.com', receiver_email) #ex
     return id_match.group(1) if id_match else None
 
 
@@ -143,8 +144,9 @@ def main(file_path):
     receiver = msg['To']
     subject = msg['Subject']
 
-    date, email_address, name, role, ref_nr = extract_details(email_body, subject)
     company_id = extract_company_id(receiver)
+    date, email_address, name, role, ref_nr = extract_details(email_body, subject)
+
 
     # split name into first and last name
     name_list = name.split()
@@ -186,8 +188,9 @@ def main(file_path):
         "attachments": attachments_list,
         "additional_info": {
             "sender": sender,
+            "receiver": receiver,
             "company_id": company_id,
-            "subject": subject,  # Uncomment if subject is needed
+            "subject": subject,
             "role": role,
             "ref_nr": ref_nr,
             "date": date
@@ -202,4 +205,4 @@ def main(file_path):
 
 # Usage example
 if __name__ == '__main__':
-    main('application-2.eml')
+    main('application-1.eml')
