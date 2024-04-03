@@ -1,0 +1,5 @@
+# Ignore environment files
+.env
+
+# Ignore IntelliJ IDEA project files
+.idea/

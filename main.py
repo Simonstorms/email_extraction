@@ -1,9 +1,41 @@
+import os
 import re
+import requests
 from bs4 import BeautifulSoup
 import base64
 import email
 from email import policy
+from dotenv import load_dotenv
 
+load_dotenv()
+
+def get_token():
+    url = "https://api.dev.getkini.com/token/"
+    payload = {
+        "username": os.getenv("USERNAME"),
+        "password": os.getenv("PASSWORD")
+    }
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    data = response.json()  # Parse the JSON response into a dictionary
+
+    return data["access"]
+
+def send_application(access_token, payload):
+    url = "https://api.dev.getkini.com/applications/"
+    headers = {
+        "accept": "application/json",
+        "Company-Id": "3",
+        "content-type": "application/json",
+        "authorization": f"Bearer {access_token}"
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    print(f"Status Code: {response.status_code}")
+    print(f"Response Text: {response.text}")
+    return response.text
 
 def determine_attachment_type(filename):
     lower_filename = filename.lower()
@@ -104,23 +136,41 @@ def main(file_path):
     first_name = name_list[0]
     last_name = name_list[-1]
 
-    print(f"First name: {first_name}")
-    print(f"Last name: {last_name}")
+    candidate_info = {
+        "email": email_address,
+        "first_name": first_name,
+        "last_name": last_name,
+        "full_name": name,
+    }
+
+    attachments_list = []
+    for attachment in attachments:
+        attachments_list.append({
+            "type": attachment['type'],
+            "content_type": attachment['content_type'],
+            "name": attachment['name'],
+            "data": attachment['data']
+        })
+
+    # Combine everything into a single structure
+    application = {
+        "candidate": candidate_info,
+        "attachments": attachments_list,
+        "applied_at": date  # assuming 'date' variable is in the correct format
+    }
+
+
 
     # Print extracted information
     print(f"Sender: {sender}")
     print(f"Company_id: {company_id}")
     # print(f"Subject: {subject}")
-    print(f"Date: {date}")
-    print(f"Email: {email_address}")
+
     print(f"Role: {role}")
     print(f"RefNr: {ref_nr}")
 
-    for attachment in attachments:
-        print(f"Type: {attachment['type']}")
-        print(f"Name: {attachment['name']}")
-        print(f"Content Type: {attachment['content_type']}")
-        print(f"Data: {attachment['data'][:30]}... (truncated for display)")
+    #print(get_token())
+    print(send_application(get_token(), application))
 
 
 # Usage example
