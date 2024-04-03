@@ -7,7 +7,6 @@ import email
 from email import policy
 from datetime import datetime
 
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -79,6 +78,7 @@ def parse_email(file_path):
                 if filename and filename not in processed_filenames:  # Check if filename has been processed
                     processed_filenames.add(filename)  # Mark filename as processed
                     payload = part.get_payload(decode=True)
+
                     data = base64.b64encode(payload).decode()
 
                     attachment_type = determine_attachment_type(filename)
@@ -103,8 +103,8 @@ def extract_details(email_body, subject):
     # get date
     date_match = soup.find(string=re.compile(r'\b\d{2}\.\d{2}\.\d{4}\b'))
     date_old = date_match.strip() if date_match else None
-    #bring in required format
-    date_obj  = datetime.strptime(date_old, "%d.%m.%Y")
+    # bring in required format
+    date_obj = datetime.strptime(date_old, "%d.%m.%Y")
     date = date_obj.strftime("%Y-%m-%dT%H:%M:%S+00:00")
     # get email address
     email_address = soup.find('a', href=lambda href: href and 'mailto:' in href).text.strip()
@@ -153,9 +153,9 @@ def main(file_path):
         "last_name": last_name,
         "full_name": name,
         "location": {
-          "street": "",
-          "city": "",
-          "country": ""
+            "street": "",
+            "city": "",
+            "country": ""
         }
     }
 
@@ -165,7 +165,7 @@ def main(file_path):
             "type": attachment['type'],
             "content_type": attachment['content_type'],
             "name": attachment['name'],
-            "data": attachment['data'][:30]
+            "data": attachment['data'][:40]  # Only show the first 40 characters bc it would work if its full length
         })
 
     # Combine everything into a single structure
@@ -185,7 +185,7 @@ def main(file_path):
     print(f"RefNr: {ref_nr}")
     print(f"Date: {date}")
 
-# api call
+    # api call
     print(send_application(get_token(), application))
 
 
