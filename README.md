@@ -2,7 +2,7 @@
 
 ## Overview
 
-This Python script automates the extraction of pertinent details from emails and then posts this data to the KIRI API. This process requires careful consideration of the data’s structure within the emails and how it aligns with the API's requirements.
+This Python script automates the extraction of pertinent details from emails and then posts this data to the KINI API. This process requires careful consideration of the data’s structure within the emails and how it aligns with the API's requirements.
 
 ### Key Features
 
