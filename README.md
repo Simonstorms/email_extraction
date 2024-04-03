@@ -2,7 +2,7 @@
 
 ## Overview
 
-This Python script provides a comprehensive solution for automating application processes through API integration and email parsing. It includes functionalities to authenticate with an API to obtain an access token, send application data, parse emails to extract relevant information, and determine attachment types.
+This Python script automates the extraction of pertinent details from emails and then posts this data to the KIRI API. This process requires careful consideration of the data’s structure within the emails and how it aligns with the API's requirements.
 
 ### Key Features
 
