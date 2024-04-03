@@ -16,6 +16,7 @@ def determine_attachment_type(filename):
     else:
         return 'other'
 
+
 def parse_email(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         msg = email.message_from_file(file, policy=policy.default)
@@ -124,4 +125,4 @@ def main(file_path):
 
 # Usage example
 if __name__ == '__main__':
-    main('application-2.eml')
+    main('application-1.eml')
