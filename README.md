@@ -8,7 +8,7 @@ This Python script provides a comprehensive solution for automating application 
 
 - **API Authentication (`get_token`)**: Authenticates with the `https://api.dev.getkini.com/token/` endpoint to obtain an access token using credentials stored in environment variables.
 - **Send Application (`send_application`)**: Submits application data to the `https://api.dev.getkini.com/applications/` endpoint using the obtained access token.
-- **Email Parsing (`parse_email`)**: Parses an email file to extract the body content and attachments, categorizing each attachment based on its filename.
+- **Email Parsing (`parse_email`)**: Parses an email file to extract the body content and attachments.
 - **Detail Extraction (`extract_details`, `extract_company_id`)**: Extracts specific details such as date, email address, name, role, reference number, and company ID from the parsed email content.
 
 ## Prerequisites
