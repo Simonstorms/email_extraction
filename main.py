@@ -56,7 +56,7 @@ def determine_attachment_type(filename):
 
 def parse_email(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
-        msg = email.message_from_file(file, policy=policy.default)  # ex
+        msg = email.message_from_file(file, policy=policy.default)  # create an email message object.
 
     body = ''
     attachments_data = []
@@ -69,7 +69,8 @@ def parse_email(file_path):
             if part.get_content_type() in ['text/plain', 'text/html'] and not part.get('Content-Disposition'):
                 if not body_processed:
                     payload = part.get_payload(decode=True)
-                    body = payload.decode(part.get_content_charset() or 'utf-8', errors='replace')  # ex
+                    body = payload.decode(part.get_content_charset() or 'utf-8',
+                                          errors='replace')  # decode the payload in a string
                     body_processed = True
 
             elif part.get('Content-Disposition'):
@@ -78,7 +79,7 @@ def parse_email(file_path):
                     processed_filenames.add(filename)  # Mark filename as processed
                     payload = part.get_payload(decode=True)
 
-                    data = base64.b64encode(payload).decode()
+                    data = base64.b64encode(payload).decode()  # Encode the payload in base64 and decode it in a string
 
                     attachment_type = determine_attachment_type(filename)
                     content_type = part.get_content_type()
@@ -101,12 +102,12 @@ def extract_details(email_body, subject):
 
     # from HTML body
     # get date
-    date_match = soup.find(string=re.compile(r'\b\d{2}\.\d{2}\.\d{4}\b'))
+    date_match = soup.find(string=re.compile(r'\b\d{2}\.\d{2}\.\d{4}\b'))  # check for date in the format dd.mm.yyyy
     date_old = date_match.strip() if date_match else None
     # Only parse and reformat the date if it is not None
     if date_old:
         date_obj = datetime.strptime(date_old, "%d.%m.%Y")
-        date = date_obj.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+        date = date_obj.strftime("%Y-%m-%dT%H:%M:%S+00:00")  # Format the date in the ISO 8601
     else:
         date = None
 
@@ -119,7 +120,7 @@ def extract_details(email_body, subject):
 
     # from subject
     # get name
-    name_match = re.search(r"von\s+(\w+\s+\w+)", subject)  # ex
+    name_match = re.search(r"von\s+(\w+\s+\w+)", subject)  #
     name = name_match.group(1) if name_match else None
     # get role
     role_match = re.search(r"als\s+(.+?)\s+\(", subject)
@@ -194,12 +195,12 @@ def main(file_path):
         }
     }
 
-    # Print the application data in JSON format
+    # print the application data in JSON format
     print(json.dumps(json_application, indent=4))
     # api call
     print(send_application(get_token(), application))
 
 
-# Usage example
+# run
 if __name__ == '__main__':
-    main('application-1.eml')
+    main('application-2.eml')
