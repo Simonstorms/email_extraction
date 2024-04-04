@@ -39,7 +39,6 @@ def send_application(access_token, payload):
     }
     response = requests.post(url, json=payload, headers=headers)
     print(f"Status Code: {response.status_code}")
-    print(f"Response Text: {response.text}")
     return response.text
 
 
@@ -57,7 +56,7 @@ def determine_attachment_type(filename):
 
 def parse_email(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
-        msg = email.message_from_file(file, policy=policy.default) #ex
+        msg = email.message_from_file(file, policy=policy.default)  # ex
 
     body = ''
     attachments_data = []
@@ -67,11 +66,10 @@ def parse_email(file_path):
     if msg.is_multipart():
         for part in msg.walk():
 
-
             if part.get_content_type() in ['text/plain', 'text/html'] and not part.get('Content-Disposition'):
                 if not body_processed:
                     payload = part.get_payload(decode=True)
-                    body = payload.decode(part.get_content_charset() or 'utf-8', errors='replace') #ex
+                    body = payload.decode(part.get_content_charset() or 'utf-8', errors='replace')  # ex
                     body_processed = True
 
             elif part.get('Content-Disposition'):
@@ -121,7 +119,7 @@ def extract_details(email_body, subject):
 
     # from subject
     # get name
-    name_match = re.search(r"von\s+(\w+\s+\w+)", subject) #ex
+    name_match = re.search(r"von\s+(\w+\s+\w+)", subject)  # ex
     name = name_match.group(1) if name_match else None
     # get role
     role_match = re.search(r"als\s+(.+?)\s+\(", subject)
@@ -132,7 +130,7 @@ def extract_details(email_body, subject):
 
 # get company id
 def extract_company_id(receiver_email):
-    id_match = re.search(r'applications\+(\d+)@getkini.com', receiver_email) #ex
+    id_match = re.search(r'applications\+(\d+)@getkini.com', receiver_email)  # ex
     return id_match.group(1) if id_match else None
 
 
@@ -146,7 +144,6 @@ def main(file_path):
 
     company_id = extract_company_id(receiver)
     date, email_address, name, role, ref_nr = extract_details(email_body, subject)
-
 
     # split name into first and last name
     name_list = name.split()
