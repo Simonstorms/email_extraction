@@ -7,7 +7,6 @@ import email
 from email import policy
 from datetime import datetime
 import json
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -136,6 +135,8 @@ def extract_company_id(receiver_email):
 
 
 def main(file_path):
+
+    token = get_token()
     email_body, msg, attachments = parse_email(file_path)
 
     # get easy basic information
@@ -198,7 +199,7 @@ def main(file_path):
     # print the application data in JSON format
     print(json.dumps(json_application, indent=4))
     # api call
-    print(send_application(get_token(), application))
+    print(send_application(token, application))
 
 
 # run
